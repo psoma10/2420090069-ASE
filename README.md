@@ -92,8 +92,10 @@ repository is itself part of the deliverable.
 
 ## Lab 6 — Docker Containerization
 
-Flask application packaged as a Docker image and run as a container.
-See [Lab 6](Lab%206/).
+Flask application packaged as a Docker image (`docker-demo-app`) and run as a
+container (`docker-demo-container`) publishing port 5000, so the app answers on
+<http://localhost:5000>. Includes a Compose file, a Pytest suite over the Flask
+test client, and Flake8 configuration. See [Lab 6](Lab%206/).
 
 ---
 

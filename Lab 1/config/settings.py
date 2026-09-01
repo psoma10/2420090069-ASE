@@ -120,3 +120,9 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     X_FRAME_OPTIONS = "DENY"
+
+    # Enable these when the site is actually served over HTTPS. They are left
+    # off here because the lab runs over plain HTTP, and SECURE_SSL_REDIRECT
+    # would make a local deployment unreachable.
+    # SECURE_SSL_REDIRECT = True
+    # SECURE_HSTS_PRELOAD = True
