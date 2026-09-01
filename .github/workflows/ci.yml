@@ -110,3 +110,88 @@ jobs:
         run: |
           docker stop "$CONTAINER_NAME" || true
           docker rm "$CONTAINER_NAME" || true
+
+  k8s-deploy:
+    name: Kubernetes Nginx Pod deploy (Lab 7)
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    env:
+      MANIFEST: Lab 7/nginx-pod.yaml
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # GitHub-hosted runners cannot nest Minikube's Docker driver reliably,
+      # so CI uses kind. It is the same single-node Kubernetes API applied to
+      # the identical manifest the lab uses locally with Minikube.
+      - name: Create Kubernetes cluster (kind)
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: lab7
+
+      - name: Verify the node is Ready
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready node --all --timeout=180s
+          kubectl get nodes -o wide
+
+      - name: Validate the manifest
+        run: kubectl apply -f "$MANIFEST" --dry-run=server
+
+      - name: Apply the Pod manifest
+        run: kubectl apply -f "$MANIFEST"
+
+      - name: Wait for the Pod to reach Running
+        run: |
+          kubectl wait --for=condition=Ready pod/nginx-pod --timeout=180s
+          kubectl get pods -o wide
+
+      - name: Port forward and verify the Nginx welcome page
+        run: |
+          kubectl port-forward pod/nginx-pod 8080:80 > /dev/null 2>&1 &
+          pf_pid=$!
+          trap 'kill "$pf_pid" 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:8080 > /dev/null; then
+              echo "Nginx responded on attempt $attempt."
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "Nginx did not respond within the timeout."
+              kubectl describe pod nginx-pod || true
+              exit 1
+            fi
+            echo "Attempt $attempt: Nginx not ready yet, retrying..."
+            sleep 2
+          done
+
+          body=$(curl -fsS http://localhost:8080)
+          case "$body" in
+            *"Welcome to nginx"*)
+              echo "Received the expected Nginx welcome page."
+              ;;
+            *)
+              echo "Unexpected response body:"
+              echo "$body"
+              exit 1
+              ;;
+          esac
+
+      - name: Verify the Service resolves to the Pod
+        run: |
+          kubectl apply -f "Lab 7/nginx-service.yaml"
+          kubectl get svc nginx-service
+          kubectl wait --for=jsonpath='{.subsets[0].addresses[0].ip}' \
+            endpoints/nginx-service --timeout=60s
+          kubectl get endpointslices -l kubernetes.io/service-name=nginx-service -o wide
+
+      - name: Show Pod logs
+        if: always()
+        run: kubectl logs nginx-pod || true
+
+      - name: Delete the lab resources
+        if: always()
+        run: |
+          kubectl delete -f "Lab 7/nginx-service.yaml" --ignore-not-found
+          kubectl delete -f "$MANIFEST" --ignore-not-found
