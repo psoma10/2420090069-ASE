@@ -1,4 +1,4 @@
-"""Calculator utilities for the GitFlow lab, maintained by the CI team.
+"""Calculator utilities demonstrating branch conflicts in the GitFlow lab.
 
 Exposes two pure functions, ``add`` and ``subtract``, which are exercised by
 ``test_app.py`` and linted by Flake8 in the CI workflow.
