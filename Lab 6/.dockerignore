@@ -1,8 +1,0 @@
-__pycache__/
-*.pyc
-.pytest_cache/
-.venv/
-test_*.py
-README.md
-.git/
-.gitignore
