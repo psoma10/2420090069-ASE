@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Log in &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <div class="auth-card">
+    <h1>Log in</h1>
+
+    {% if form.errors %}
+      <p class="form-error">Your username and password did not match. Please try again.</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'accounts:login' %}" novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+      </div>
+
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn btn-primary btn-block">Log in</button>
+    </form>
+
+    <p class="auth-alt">
+      Don't have an account? <a href="{% url 'accounts:register' %}">Register</a>
+    </p>
+  </div>
+{% endblock %}

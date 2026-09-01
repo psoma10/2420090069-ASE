@@ -1,0 +1,22 @@
+{% comment %}Reusable product tile used by listing pages.{% endcomment %}
+<article class="product-card">
+  <a href="{{ product.get_absolute_url }}" class="product-card-image">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% else %}
+      <div class="image-placeholder" aria-hidden="true">{{ product.name|first|upper }}</div>
+    {% endif %}
+  </a>
+  <div class="product-card-body">
+    <p class="product-category">{{ product.category.name }}</p>
+    <h3 class="product-name">
+      <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+    </h3>
+    <p class="product-price">&#8377;{{ product.price }}</p>
+    {% if product.in_stock %}
+      <p class="stock in-stock">In stock ({{ product.stock }})</p>
+    {% else %}
+      <p class="stock out-of-stock">Out of stock</p>
+    {% endif %}
+  </div>
+</article>

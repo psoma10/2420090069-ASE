@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Checkout</h1>
+    <p class="muted">Confirm your delivery details to place the order.</p>
+  </div>
+
+  <div class="checkout-layout">
+    <div class="form-card">
+      <h2>Delivery details</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="form-error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+          <div class="form-row">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <small class="field-error">{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary btn-block">Place order</button>
+      </form>
+    </div>
+
+    <aside class="cart-summary">
+      <h2>Your order</h2>
+      <ul class="summary-items">
+        {% for item in items %}
+          <li>
+            <span>{{ item.quantity }} &times; {{ item.product.name }}</span>
+            <span>&#8377;{{ item.subtotal }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <dl class="summary-list">
+        <dt>Total</dt>
+        <dd class="summary-total">&#8377;{{ cart.total }}</dd>
+      </dl>
+      <a href="{% url 'cart:cart_detail' %}" class="btn btn-secondary btn-block">Edit cart</a>
+    </aside>
+  </div>
+{% endblock %}

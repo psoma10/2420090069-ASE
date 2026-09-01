@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Order {{ order.short_reference }} &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{% url 'orders:order_list' %}">My orders</a>
+    <span aria-hidden="true">/</span>
+    <span>{{ order.short_reference }}</span>
+  </nav>
+
+  <div class="page-head">
+    <h1>Order {{ order.short_reference }}</h1>
+    <p class="muted">
+      Placed {{ order.placed_at|date:"d M Y, H:i" }} &mdash;
+      <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+    </p>
+  </div>
+
+  <div class="order-layout">
+    <section class="order-main">
+      <h2>Items</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Unit price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <td>{{ item.product_name }}</td>
+              <td>&#8377;{{ item.unit_price }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>&#8377;{{ item.subtotal }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" scope="row">Total</th>
+            <td class="summary-total">&#8377;{{ order.total_amount }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <aside class="order-side">
+      <div class="info-card">
+        <h2>Delivery</h2>
+        <p>{{ order.full_name }}</p>
+        <p>{{ order.phone }}</p>
+        <p>{{ order.shipping_address|linebreaksbr }}</p>
+      </div>
+
+      <div class="info-card">
+        <h2>Payment</h2>
+        {% if payment %}
+          <p>{{ payment.get_method_display }}</p>
+          <p><span class="status status-{{ payment.status }}">{{ payment.get_status_display }}</span></p>
+          <p class="muted small">Transaction {{ payment.transaction_id }}</p>
+        {% else %}
+          <p class="muted">Not yet paid.</p>
+          <a href="{% url 'orders:payment' order.reference %}" class="btn btn-primary btn-block">Pay now</a>
+        {% endif %}
+      </div>
+
+      {% if shipment %}
+        <div class="info-card">
+          <h2>Shipment</h2>
+          <p class="muted small">Tracking {{ shipment.tracking_number }}</p>
+          <p>{{ shipment.carrier }}</p>
+        </div>
+      {% endif %}
+
+      <a href="{% url 'orders:order_tracking' order.reference %}" class="btn btn-secondary btn-block">
+        Track this order
+      </a>
+
+      {% if order.is_cancellable %}
+        <form action="{% url 'orders:order_cancel' order.reference %}" method="post"
+              onsubmit="return confirm('Cancel this order? This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-block">Cancel order</button>
+        </form>
+      {% endif %}
+    </aside>
+  </div>
+{% endblock %}

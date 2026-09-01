@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Tracking {{ order.short_reference }} &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{% url 'orders:order_list' %}">My orders</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'orders:order_detail' order.reference %}">{{ order.short_reference }}</a>
+    <span aria-hidden="true">/</span>
+    <span>Tracking</span>
+  </nav>
+
+  <div class="page-head">
+    <h1>Order tracking</h1>
+    <p class="muted">
+      Order {{ order.short_reference }} &mdash;
+      <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+    </p>
+  </div>
+
+  {% if shipment %}
+    <div class="info-card">
+      <h2>Shipment details</h2>
+      <dl class="summary-list">
+        <dt>Tracking number</dt>
+        <dd>{{ shipment.tracking_number }}</dd>
+        <dt>Carrier</dt>
+        <dd>{{ shipment.carrier }}</dd>
+        {% if shipment.current_location %}
+          <dt>Current location</dt>
+          <dd>{{ shipment.current_location }}</dd>
+        {% endif %}
+        {% if shipment.dispatched_at %}
+          <dt>Dispatched</dt>
+          <dd>{{ shipment.dispatched_at|date:"d M Y, H:i" }}</dd>
+        {% endif %}
+        {% if shipment.delivered_at %}
+          <dt>Delivered</dt>
+          <dd>{{ shipment.delivered_at|date:"d M Y, H:i" }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  {% endif %}
+
+  <section class="tracking-history">
+    <h2>Status history</h2>
+    {% if updates %}
+      <ol class="timeline">
+        {% for update in updates %}
+          <li class="timeline-item">
+            <div class="timeline-marker" aria-hidden="true"></div>
+            <div class="timeline-body">
+              <p class="timeline-status">{{ update.get_status_display }}</p>
+              {% if update.note %}<p class="muted">{{ update.note }}</p>{% endif %}
+              <p class="muted small">{{ update.created_at|date:"d M Y, H:i" }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="muted">No status updates recorded yet.</p>
+    {% endif %}
+  </section>
+
+  <a href="{% url 'orders:order_detail' order.reference %}" class="btn btn-secondary">Back to order</a>
+{% endblock %}

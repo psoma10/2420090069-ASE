@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{% url 'catalogue:product_list' %}">Products</a>
+    <span aria-hidden="true">/</span>
+    <span>{{ category.name }}</span>
+  </nav>
+
+  <div class="page-head">
+    <h1>{{ category.name }}</h1>
+    {% if category.description %}<p class="muted">{{ category.description }}</p>{% endif %}
+    <p class="muted">{{ result_count }} product{{ result_count|pluralize }}</p>
+  </div>
+
+  {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+        {% include "catalogue/_product_card.html" with product=product %}
+      {% endfor %}
+    </div>
+    {% include "_pagination.html" with page_obj=page_obj %}
+  {% else %}
+    <div class="empty-state">
+      <p>There are no products in this category yet.</p>
+      <a href="{% url 'catalogue:product_list' %}" class="btn btn-primary">Browse all products</a>
+    </div>
+  {% endif %}
+{% endblock %}

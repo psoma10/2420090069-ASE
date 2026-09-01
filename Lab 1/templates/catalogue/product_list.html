@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if query %}Search: {{ query }}{% else %}Products{% endif %} &mdash; ShopKart
+{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>
+      {% if query %}
+        Results for &ldquo;{{ query }}&rdquo;
+      {% else %}
+        All Products
+      {% endif %}
+    </h1>
+    <p class="muted">{{ result_count }} product{{ result_count|pluralize }} found</p>
+  </div>
+
+  <div class="layout-split">
+    <aside class="sidebar">
+      <h2 class="sidebar-title">Categories</h2>
+      <ul class="category-list">
+        <li>
+          <a href="{% url 'catalogue:product_list' %}"
+             class="{% if not active_category %}active{% endif %}">All categories</a>
+        </li>
+        {% for category in categories %}
+          <li>
+            <a href="{% url 'catalogue:category_detail' category.slug %}">{{ category.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    <section class="product-area">
+      {% if products %}
+        <div class="product-grid">
+          {% for product in products %}
+            {% include "catalogue/_product_card.html" with product=product %}
+          {% endfor %}
+        </div>
+
+        {% include "_pagination.html" with page_obj=page_obj %}
+      {% else %}
+        <div class="empty-state">
+          <p>No products matched your search.</p>
+          <a href="{% url 'catalogue:product_list' %}" class="btn btn-primary">Browse all products</a>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

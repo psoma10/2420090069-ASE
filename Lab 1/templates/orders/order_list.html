@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}My orders &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>My orders</h1>
+  </div>
+
+  {% if orders %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Order</th>
+          <th scope="col">Placed</th>
+          <th scope="col">Items</th>
+          <th scope="col">Total</th>
+          <th scope="col">Status</th>
+          <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td><a href="{% url 'orders:order_detail' order.reference %}">{{ order.short_reference }}</a></td>
+            <td>{{ order.placed_at|date:"d M Y, H:i" }}</td>
+            <td>{{ order.items.count }}</td>
+            <td>&#8377;{{ order.total_amount }}</td>
+            <td><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+            <td>
+              <a href="{% url 'orders:order_tracking' order.reference %}" class="btn btn-small">Track</a>
+              {% if not order.is_paid and order.status != 'cancelled' %}
+                <a href="{% url 'orders:payment' order.reference %}" class="btn btn-small btn-primary">Pay now</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">
+      <p>You have not placed any orders yet.</p>
+      <a href="{% url 'catalogue:product_list' %}" class="btn btn-primary">Start shopping</a>
+    </div>
+  {% endif %}
+{% endblock %}

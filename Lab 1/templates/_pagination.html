@@ -1,0 +1,18 @@
+{% comment %}Shared pager. Preserves the current query string across pages.{% endcomment %}
+{% if page_obj.has_other_pages %}
+  <nav class="pagination" aria-label="Pagination">
+    {% if page_obj.has_previous %}
+      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+    {% else %}
+      <span class="page-link disabled">Previous</span>
+    {% endif %}
+
+    <span class="page-status">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+    {% else %}
+      <span class="page-link disabled">Next</span>
+    {% endif %}
+  </nav>
+{% endif %}
