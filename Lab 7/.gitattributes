@@ -1,0 +1,7 @@
+# core.autocrlf=true would check these out with CRLF line endings. A shell
+# script with a trailing \r fails inside the Linux containers that run them
+# (bash reports "\r: command not found"), and Kubernetes manifests are consumed
+# by the same Linux tooling, so both are pinned to LF.
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
