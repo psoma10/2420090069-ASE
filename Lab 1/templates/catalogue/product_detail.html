@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{% url 'catalogue:product_list' %}">Products</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'catalogue:category_detail' product.category.slug %}">{{ product.category.name }}</a>
+    <span aria-hidden="true">/</span>
+    <span>{{ product.name }}</span>
+  </nav>
+
+  <div class="product-detail">
+    <div class="product-detail-image">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+      {% else %}
+        <div class="image-placeholder large" aria-hidden="true">{{ product.name|first|upper }}</div>
+      {% endif %}
+    </div>
+
+    <div class="product-detail-info">
+      <p class="product-category">{{ product.category.name }}</p>
+      <h1>{{ product.name }}</h1>
+      <p class="product-price large">&#8377;{{ product.price }}</p>
+
+      {% if product.in_stock %}
+        <p class="stock in-stock">In stock &mdash; {{ product.stock }} available</p>
+      {% else %}
+        <p class="stock out-of-stock">Currently out of stock</p>
+      {% endif %}
+
+      {% if product.description %}
+        <div class="product-description">
+          <h2>Description</h2>
+          <p>{{ product.description|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+
+      {% if product.in_stock %}
+        {% if user.is_authenticated %}
+          <form action="{% url 'cart:cart_add' product.id %}" method="post" class="add-to-cart-form">
+            {% csrf_token %}
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity" value="1"
+                   min="1" max="{{ product.stock }}" class="qty-input">
+            <button type="submit" class="btn btn-primary">Add to Cart</button>
+          </form>
+        {% else %}
+          <p class="login-prompt">
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}">Log in</a> to add this product to your cart.
+          </p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {% if related_products %}
+    <section class="related">
+      <h2>More in {{ product.category.name }}</h2>
+      <div class="product-grid">
+        {% for related in related_products %}
+          {% include "catalogue/_product_card.html" with product=related %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

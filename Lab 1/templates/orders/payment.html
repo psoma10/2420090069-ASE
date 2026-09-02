@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Payment &mdash; Order {{ order.short_reference }}{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Payment</h1>
+    <p class="muted">Order {{ order.short_reference }} &mdash; &#8377;{{ order.total_amount }}</p>
+  </div>
+
+  <div class="form-card narrow">
+    <p class="notice">
+      This is a simulated payment gateway for demonstration purposes.
+      No card details are collected and no real transaction takes place.
+    </p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <fieldset class="payment-methods">
+        <legend>Choose a payment method</legend>
+        {% for radio in form.method %}
+          <label class="radio-option">
+            {{ radio.tag }}
+            <span>{{ radio.choice_label }}</span>
+          </label>
+        {% endfor %}
+        {% for error in form.method.errors %}
+          <small class="field-error">{{ error }}</small>
+        {% endfor %}
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-block">
+        Pay &#8377;{{ order.total_amount }}
+      </button>
+    </form>
+
+    <a href="{% url 'orders:order_detail' order.reference %}" class="btn btn-link">
+      View order details
+    </a>
+  </div>
+{% endblock %}

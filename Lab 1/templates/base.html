@@ -1,0 +1,63 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ShopKart{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="{% url 'catalogue:product_list' %}" class="brand">ShopKart</a>
+
+      <form class="search-form" action="{% url 'catalogue:product_list' %}" method="get" role="search">
+        <input type="search" name="q" value="{{ query|default:'' }}"
+               placeholder="Search products&hellip;" aria-label="Search products">
+        <button type="submit" class="btn btn-search">Search</button>
+      </form>
+
+      <nav class="main-nav">
+        {% if user.is_authenticated %}
+          <a href="{% url 'cart:cart_detail' %}" class="nav-link cart-link">
+            Cart
+            {% if cart_item_count %}<span class="badge">{{ cart_item_count }}</span>{% endif %}
+          </a>
+          <a href="{% url 'orders:order_list' %}" class="nav-link">My Orders</a>
+          {% if user.is_administrator %}
+            <a href="{% url 'admin:index' %}" class="nav-link">Admin</a>
+          {% endif %}
+          <a href="{% url 'accounts:profile' %}" class="nav-link">{{ user.username }}</a>
+          <form action="{% url 'accounts:logout' %}" method="post" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link">Logout</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="nav-link">Login</a>
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="container">
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="message message-{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <main class="container main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>ShopKart &mdash; E-Commerce System built with Django (PRD 01, Agile model).</p>
+    </div>
+  </footer>
+</body>
+</html>

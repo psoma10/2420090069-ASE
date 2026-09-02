@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}My cart &mdash; ShopKart{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>My cart</h1>
+  </div>
+
+  {% if items %}
+    <div class="cart-layout">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Subtotal</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <td>
+                <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+                {% if not item.product.in_stock %}
+                  <small class="out-of-stock">Out of stock</small>
+                {% endif %}
+              </td>
+              <td>&#8377;{{ item.product.price }}</td>
+              <td>
+                <form action="{% url 'cart:cart_update' item.product.id %}" method="post" class="qty-form">
+                  {% csrf_token %}
+                  <input type="number" name="quantity" value="{{ item.quantity }}"
+                         min="1" max="{{ item.product.stock }}" class="qty-input"
+                         aria-label="Quantity for {{ item.product.name }}">
+                  <button type="submit" class="btn btn-small">Update</button>
+                </form>
+              </td>
+              <td class="line-total">&#8377;{{ item.subtotal }}</td>
+              <td>
+                <form action="{% url 'cart:cart_remove' item.product.id %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-small">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <aside class="cart-summary">
+        <h2>Order summary</h2>
+        <dl class="summary-list">
+          <dt>Items</dt>
+          <dd>{{ cart.item_count }}</dd>
+          <dt>Total</dt>
+          <dd class="summary-total">&#8377;{{ cart.total }}</dd>
+        </dl>
+        <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-block">Proceed to checkout</a>
+        <a href="{% url 'catalogue:product_list' %}" class="btn btn-secondary btn-block">Continue shopping</a>
+      </aside>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>Your cart is empty.</p>
+      <a href="{% url 'catalogue:product_list' %}" class="btn btn-primary">Start shopping</a>
+    </div>
+  {% endif %}
+{% endblock %}
